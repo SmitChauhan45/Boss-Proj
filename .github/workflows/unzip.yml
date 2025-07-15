@@ -14,12 +14,19 @@ jobs:
 
     - name: Unzip files
       run: |
-        mkdir extracted
-        unzip '*.zip' -d extracted
+        mkdir -p extracted
+        for file in *.zip; do
+          unzip -o "$file" -d extracted
+        done
+
     - name: Commit unzipped files
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
         git add extracted/*
-        git commit -m "Extracted zip files"
-        git push
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Extracted zip files"
+          git push
+        fi
