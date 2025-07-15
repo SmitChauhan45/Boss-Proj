@@ -12,6 +12,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
     - name: Unzip files
       run: |
         mkdir -p extracted
@@ -19,7 +26,7 @@ jobs:
           unzip -o "$file" -d extracted
         done
 
-    - name: Commit unzipped files
+    - name: Commit and push unzipped files
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
@@ -28,5 +35,5 @@ jobs:
           echo "No changes to commit."
         else
           git commit -m "Extracted zip files"
-          git push
+          git push git@github.com:SmitChauhan45/Boss-Proj.git HEAD:main
         fi
